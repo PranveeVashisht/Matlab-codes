@@ -1,0 +1,71 @@
+clear all;
+clc;
+
+a = [7 1 4;6 3 2;4 5 3];
+a_copy1 = a;
+supply = [10;15;20]; 
+demand = [13 18 14];
+m = 3;
+n = 3;
+max = -inf;
+for i=1:m
+    for j=1:n
+        if(a(i,j)>max)
+            max = a(i,j);
+        end
+    end
+end
+for i=1:m
+    for j=1:n
+        a(i,j) = max - a(i,j);
+    end
+end
+sum_sup = sum(supply);
+sum_dem = sum(demand);
+
+if(sum_sup>sum_dem)
+    diff = abs(sum_sup-sum_dem);
+    demand = [demand diff];
+    a = [a zeros(m,1)];
+    n = n+1;
+elseif(sum_sup<sum_dem)
+    diff = abs(sum_sup-sum_dem);
+    supply = [supply;diff];
+    a = [a;zeros(1,n)];
+    m = m+1;
+end
+a_copy = a;
+x=zeros(m,n);
+k=1;
+while k<=m+n-1
+    min_val = inf;
+    for i=1:m
+    for j=1:n
+        if(a(i,j)<min_val)
+            min_val = a(i,j);
+        end
+    end
+    end
+    [row,col] = find(a==min_val,1,'first');
+    min2 = min(supply(row),demand(col));
+    x(row,col) = min2;
+    if(min2==demand(col))
+        supply(row) = supply(row) - demand(col);
+        demand(col)=0;
+        
+        a(:,col) = inf;
+    elseif(min2==supply(row))
+        demand(col) = demand(col)-supply(row);
+        supply(row) = 0;
+        
+        a(row,:) = inf;
+    end
+    k=k+1;
+end
+soln = 0;
+for i=1:m
+    for j=1:n
+       soln = soln + x(i,j).*a_copy1(i,j);
+    end
+end
+disp(soln);
